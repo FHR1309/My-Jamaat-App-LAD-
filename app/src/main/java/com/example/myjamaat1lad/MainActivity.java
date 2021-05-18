@@ -19,6 +19,7 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity {
 
     ArrayList<String> masjids;
+    ArrayList<String> prayerTimes;
     SQLiteDatabase masjidDatabase;
     ArrayAdapter arrayAdapter;
 
@@ -28,6 +29,13 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Button btnAdd = findViewById(R.id.btnAdd);
         ListView LOM = findViewById(R.id.LOM);
+
+        //WORKS WITH DATABASE
+        masjidDatabase = this.openOrCreateDatabase("MasjidData", MODE_PRIVATE, null);
+        masjidDatabase.execSQL("CREATE TABLE IF NOT EXISTS masjids(name VARCHAR, Fazr VARCHAR, Zuhr VARCHAR, Asr VARCHAR, Maghrib VARCHAR, Esha VARCHAR )");
+        masjidDatabase.execSQL("INSERT INTO masjids(name, Fazr, Zuhr, Asr, Maghrib, Esha) VALUES ('Rahmania Masjid' , 4.50, 1.30, 5.30, 6.38, 8.30 )");
+
+        //DECLARING AND ADDING LISTVIEW AND ADAPTER
         masjids = new ArrayList<>();
         masjids.add("+ Add a new Masjid");
         Context context;
@@ -40,18 +48,19 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        masjidDatabase = this.openOrCreateDatabase("MasjidData", MODE_PRIVATE, null);
-        masjidDatabase.execSQL("CREATE TABLE IF NOT EXISTS masjids(name VARCHAR, Fazr VARCHAR, Zuhr VARCHAR, Asr VARCHAR, Maghrib VARCHAR, Esha VARCHAR )");
-        masjidDatabase.execSQL("INSERT INTO masjids(name, Fazr, Zuhr, Asr, Maghrib, Esha) VALUES ('Rahmania Masjid' , 4.50, 1.30, 5.30, 6.38, 8.30 )");
+
+       //UPDATING LISTVIEW
         Cursor cursor = masjidDatabase.rawQuery("SELECT * FROM  masjids", null);
         int nameIndex = cursor.getColumnIndex("name");
         //cursor.moveToFirst();
         //if (cursor!= null) masjids.add(cursor.getString(nameIndex));
+        cursor.close();
 
 
 
     }
 
+    //TAKES TO THE DATAPAGE
     public  void addMasjid(View view){
         Intent addPage = new Intent(this, ShowData.class);
         Cursor cursor = masjidDatabase.rawQuery("SELECT * FROM  masjids", null);
@@ -68,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
         Log.i("a masjid  ", cursor.getString(nameIndex));
         addPage.putExtra("name", cursor.getString(nameIndex));
         addPage.putExtra("prayerTimes","fazr  :  " + cursor.getString(FazrIndex) +"\n" +"zuhr  :  " + cursor.getString(ZuhrIndex) +"\n"+ "Asr  :  " + cursor.getString(AsrIndex) +"\n"+"maghrib  :  " + cursor.getString(MaghribIndex) +"\n"+ "esha  :  " + cursor.getString(EshaIndex));
-
+        cursor.close();
         startActivity(addPage);
     }
 }
