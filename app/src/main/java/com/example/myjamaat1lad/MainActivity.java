@@ -32,38 +32,66 @@ public class MainActivity extends AppCompatActivity {
 
         //WORKS WITH DATABASE
         masjidDatabase = this.openOrCreateDatabase("MasjidData", MODE_PRIVATE, null);
-        masjidDatabase.execSQL("CREATE TABLE IF NOT EXISTS masjids(name VARCHAR, Fazr VARCHAR, Zuhr VARCHAR, Asr VARCHAR, Maghrib VARCHAR, Esha VARCHAR )");
-        masjidDatabase.execSQL("INSERT INTO masjids(name, Fazr, Zuhr, Asr, Maghrib, Esha) VALUES ('Rahmania Masjid' , 4.50, 1.30, 5.30, 6.38, 8.30 )");
+        masjidDatabase.execSQL("CREATE TABLE IF NOT EXISTS zmasjids(id INTEGER PRIMARY KEY, name VARCHAR, Fazr VARCHAR, Zuhr VARCHAR, Asr VARCHAR, Maghrib VARCHAR, Esha VARCHAR )");
+        masjidDatabase.execSQL("DELETE  FROM zmasjids WHERE name = 'R%'");
+        masjidDatabase.execSQL("INSERT INTO zmasjids(name, Fazr, Zuhr, Asr, Maghrib, Esha) VALUES ('Rahmania Masjid' , '4.50', '1.30', '5.30', '6.38', '8.30' )");
 
         //DECLARING AND ADDING LISTVIEW AND ADAPTER
         masjids = new ArrayList<>();
-        masjids.add("+ Add a new Masjid");
-        Context context;
+        prayerTimes= new ArrayList<>();
+
         arrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, masjids);
         LOM.setAdapter(arrayAdapter);
+
+        //UPDATING LISTVIEW
+        updateListView();
+
         LOM.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent showDataPage = new Intent(getApplicationContext(), ShowData.class);
+                showDataPage.putExtra("name", masjids.get(position));
+                showDataPage.putExtra("prayerTimes", prayerTimes.get(position));
+                startActivity(showDataPage);
 
             }
         });
 
 
-       //UPDATING LISTVIEW
-        Cursor cursor = masjidDatabase.rawQuery("SELECT * FROM  masjids", null);
-        int nameIndex = cursor.getColumnIndex("name");
-        //cursor.moveToFirst();
-        //if (cursor!= null) masjids.add(cursor.getString(nameIndex));
-        cursor.close();
+
 
 
 
     }
 
+    public void updateListView(){
+        Cursor cursor = masjidDatabase.rawQuery("SELECT * FROM  zmasjids", null);
+        int nameIndex = cursor.getColumnIndex("name");
+        int FazrIndex = cursor.getColumnIndex("Fazr");
+        int ZuhrIndex = cursor.getColumnIndex("Zuhr");
+        int AsrIndex = cursor.getColumnIndex("Asr");
+        int MaghribIndex = cursor.getColumnIndex("Maghrib");
+        int EshaIndex = cursor.getColumnIndex("Esha");
+        cursor.moveToFirst();
+        masjids.clear();
+        prayerTimes.clear();
+        while(!cursor.isAfterLast()){
+            Log.i("name", cursor.getString(nameIndex));
+            masjids.add(cursor.getString(nameIndex));
+            prayerTimes.add("fazr  :  " + cursor.getString(FazrIndex) +"\n"
+                    +"zuhr     :  " + cursor.getString(ZuhrIndex) +"\n"
+                    + "Asr     :  " + cursor.getString(AsrIndex) +"\n"
+                    +"maghrib  :  " + cursor.getString(MaghribIndex) +"\n"
+                    +"esha     :  " + cursor.getString(EshaIndex));
+            cursor.moveToNext();
+        }
+        cursor.close();
+    }
+
     //TAKES TO THE DATAPAGE
     public  void addMasjid(View view){
-        Intent addPage = new Intent(this, ShowData.class);
-        Cursor cursor = masjidDatabase.rawQuery("SELECT * FROM  masjids", null);
+        Intent showDataPage = new Intent(this, ShowData.class);
+        Cursor cursor = masjidDatabase.rawQuery("SELECT * FROM  zmasjids", null);
         int nameIndex = cursor.getColumnIndex("name");
         int FazrIndex = cursor.getColumnIndex("Fazr");
         int ZuhrIndex = cursor.getColumnIndex("Zuhr");
@@ -75,9 +103,9 @@ public class MainActivity extends AppCompatActivity {
         arrayAdapter.notifyDataSetChanged();
 
         Log.i("a masjid  ", cursor.getString(nameIndex));
-        addPage.putExtra("name", cursor.getString(nameIndex));
-        addPage.putExtra("prayerTimes","fazr  :  " + cursor.getString(FazrIndex) +"\n" +"zuhr  :  " + cursor.getString(ZuhrIndex) +"\n"+ "Asr  :  " + cursor.getString(AsrIndex) +"\n"+"maghrib  :  " + cursor.getString(MaghribIndex) +"\n"+ "esha  :  " + cursor.getString(EshaIndex));
+        showDataPage.putExtra("name", cursor.getString(nameIndex));
+        showDataPage.putExtra("prayerTimes","fazr  :  " + cursor.getString(FazrIndex) +"\n" +"zuhr  :  " + cursor.getString(ZuhrIndex) +"\n"+ "Asr  :  " + cursor.getString(AsrIndex) +"\n"+"maghrib  :  " + cursor.getString(MaghribIndex) +"\n"+ "esha  :  " + cursor.getString(EshaIndex));
         cursor.close();
-        startActivity(addPage);
+        startActivity(showDataPage);
     }
 }
