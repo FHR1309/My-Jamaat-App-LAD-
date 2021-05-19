@@ -20,7 +20,7 @@ public class MainActivity extends AppCompatActivity {
 
     ArrayList<String> masjids;
     ArrayList<String> prayerTimes;
-    SQLiteDatabase masjidDatabase;
+    static SQLiteDatabase masjidDatabase;
     ArrayAdapter arrayAdapter;
 
     @Override
@@ -89,23 +89,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //TAKES TO THE DATAPAGE
-    public  void addMasjid(View view){
-        Intent showDataPage = new Intent(this, ShowData.class);
-        Cursor cursor = masjidDatabase.rawQuery("SELECT * FROM  zmasjids", null);
-        int nameIndex = cursor.getColumnIndex("name");
-        int FazrIndex = cursor.getColumnIndex("Fazr");
-        int ZuhrIndex = cursor.getColumnIndex("Zuhr");
-        int AsrIndex = cursor.getColumnIndex("Asr");
-        int MaghribIndex = cursor.getColumnIndex("Maghrib");
-        int EshaIndex = cursor.getColumnIndex("Esha");
-        cursor.moveToFirst();
-        masjids.add(cursor.getString(nameIndex));
-        arrayAdapter.notifyDataSetChanged();
+    public  void toEditTimeActivity(View view){
+        Intent toEditTime = new Intent(this, EditTime.class);
 
-        Log.i("a masjid  ", cursor.getString(nameIndex));
-        showDataPage.putExtra("name", cursor.getString(nameIndex));
-        showDataPage.putExtra("prayerTimes","fazr  :  " + cursor.getString(FazrIndex) +"\n" +"zuhr  :  " + cursor.getString(ZuhrIndex) +"\n"+ "Asr  :  " + cursor.getString(AsrIndex) +"\n"+"maghrib  :  " + cursor.getString(MaghribIndex) +"\n"+ "esha  :  " + cursor.getString(EshaIndex));
-        cursor.close();
-        startActivity(showDataPage);
+        Log.i("editTime  ", "1234");
+        //toEditTime.putExtra("name", "a");
+        //toEditTime.putExtra("","");
+        startActivity(toEditTime);
     }
 }

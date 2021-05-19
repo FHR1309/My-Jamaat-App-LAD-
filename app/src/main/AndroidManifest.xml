@@ -8,7 +8,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MyJamaat1LAD">
-        <activity android:name=".ShowData"></activity>
+        <activity android:name=".EditTime"></activity>
+        <activity android:name=".ShowData" />
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
