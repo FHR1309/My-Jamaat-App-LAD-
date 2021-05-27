@@ -18,10 +18,10 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
-    ArrayList<String> masjids;
-    ArrayList<String> prayerTimes;
+    static ArrayList<String> masjids;
+    static ArrayList<String> prayerTimes;
     static SQLiteDatabase masjidDatabase;
-    ArrayAdapter arrayAdapter;
+    static ArrayAdapter arrayAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,9 +32,9 @@ public class MainActivity extends AppCompatActivity {
 
         //WORKS WITH DATABASE
         masjidDatabase = this.openOrCreateDatabase("MasjidData", MODE_PRIVATE, null);
-        masjidDatabase.execSQL("CREATE TABLE IF NOT EXISTS zmasjids(id INTEGER PRIMARY KEY, name VARCHAR, Fazr VARCHAR, Zuhr VARCHAR, Asr VARCHAR, Maghrib VARCHAR, Esha VARCHAR )");
-        masjidDatabase.execSQL("DELETE  FROM zmasjids WHERE name = 'R%'");
-        masjidDatabase.execSQL("INSERT INTO zmasjids(name, Fazr, Zuhr, Asr, Maghrib, Esha) VALUES ('Rahmania Masjid' , '4.50', '1.30', '5.30', '6.38', '8.30' )");
+        masjidDatabase.execSQL("CREATE TABLE IF NOT EXISTS zmasjids(id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR, Fazr VARCHAR, Zuhr VARCHAR, Asr VARCHAR, Maghrib VARCHAR, Esha VARCHAR )");
+
+        masjidDatabase.execSQL("DELETE FROM zmasjids where id > 0");
 
         //DECLARING AND ADDING LISTVIEW AND ADAPTER
         masjids = new ArrayList<>();
@@ -51,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent showDataPage = new Intent(getApplicationContext(), ShowData.class);
                 showDataPage.putExtra("name", masjids.get(position));
-                showDataPage.putExtra("prayerTimes", prayerTimes.get(position));
+                showDataPage.putExtra("position", Integer.toString(position));
                 startActivity(showDataPage);
 
             }
@@ -64,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void updateListView(){
+    public static void updateListView(){
         Cursor cursor = masjidDatabase.rawQuery("SELECT * FROM  zmasjids", null);
         int nameIndex = cursor.getColumnIndex("name");
         int FazrIndex = cursor.getColumnIndex("Fazr");

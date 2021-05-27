@@ -8,7 +8,9 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import static com.example.myjamaat1lad.MainActivity.arrayAdapter;
 import static com.example.myjamaat1lad.MainActivity.masjidDatabase;
+import static com.example.myjamaat1lad.MainActivity.updateListView;
 
 public class EditTime extends AppCompatActivity {
 
@@ -40,6 +42,9 @@ public class EditTime extends AppCompatActivity {
                 +ettEsha.getText();
         masjidDatabase.execSQL("INSERT INTO zmasjids(name, Fazr, Zuhr, Asr, Maghrib, Esha) VALUES ('"+sqlValues+"')");
         Log.i("SqlValues", sqlValues);
+        updateListView();
+        arrayAdapter.notifyDataSetChanged();
+        finish();
     }
     public void cancel(View view){
         finish();
