@@ -15,42 +15,36 @@ import android.widget.Button;
 import android.widget.ListView;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    static ArrayList<String> masjids;
-    static ArrayList<String> prayerTimes;
-    static SQLiteDatabase masjidDatabase;
-    static ArrayAdapter arrayAdapter;
+    static List<Masjid_Model> masjids;
+    static ArrayAdapter<Masjid_Model> arrayAdapter;
+    DatabaseHelper databaseHelper;
+    static ListView LOM;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Button btnAdd = findViewById(R.id.btnAdd);
-        ListView LOM = findViewById(R.id.LOM);
+        LOM = findViewById(R.id.LOM);
 
-        //WORKS WITH DATABASE
-        masjidDatabase = this.openOrCreateDatabase("MasjidData", MODE_PRIVATE, null);
-        masjidDatabase.execSQL("CREATE TABLE IF NOT EXISTS zmasjids(id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR, Fazr VARCHAR, Zuhr VARCHAR, Asr VARCHAR, Maghrib VARCHAR, Esha VARCHAR )");
 
-        masjidDatabase.execSQL("DELETE FROM zmasjids where id > 0");
 
         //DECLARING AND ADDING LISTVIEW AND ADAPTER
-        masjids = new ArrayList<>();
-        prayerTimes= new ArrayList<>();
-
-        arrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, masjids);
+        databaseHelper = new DatabaseHelper(MainActivity.this);
+        masjids = databaseHelper.getAll();
+        arrayAdapter = new ArrayAdapter<Masjid_Model>(this, android.R.layout.simple_list_item_1, masjids);
         LOM.setAdapter(arrayAdapter);
 
-        //UPDATING LISTVIEW
-        updateListView();
+
 
         LOM.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent showDataPage = new Intent(getApplicationContext(), ShowData.class);
-                showDataPage.putExtra("name", masjids.get(position));
                 showDataPage.putExtra("position", Integer.toString(position));
                 startActivity(showDataPage);
 
@@ -64,28 +58,9 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public static void updateListView(){
-        Cursor cursor = masjidDatabase.rawQuery("SELECT * FROM  zmasjids", null);
-        int nameIndex = cursor.getColumnIndex("name");
-        int FazrIndex = cursor.getColumnIndex("Fazr");
-        int ZuhrIndex = cursor.getColumnIndex("Zuhr");
-        int AsrIndex = cursor.getColumnIndex("Asr");
-        int MaghribIndex = cursor.getColumnIndex("Maghrib");
-        int EshaIndex = cursor.getColumnIndex("Esha");
-        cursor.moveToFirst();
-        masjids.clear();
-        prayerTimes.clear();
-        while(!cursor.isAfterLast()){
-            Log.i("name", cursor.getString(nameIndex));
-            masjids.add(cursor.getString(nameIndex));
-            prayerTimes.add("fazr  :  " + cursor.getString(FazrIndex) +"\n"
-                    +"zuhr     :  " + cursor.getString(ZuhrIndex) +"\n"
-                    + "Asr     :  " + cursor.getString(AsrIndex) +"\n"
-                    +"maghrib  :  " + cursor.getString(MaghribIndex) +"\n"
-                    +"esha     :  " + cursor.getString(EshaIndex));
-            cursor.moveToNext();
-        }
-        cursor.close();
+    public  void updateListView(){
+        masjids = databaseHelper.getAll();
+        arrayAdapter.notifyDataSetChanged();
     }
 
     //TAKES TO THE DATAPAGE

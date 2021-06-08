@@ -6,16 +6,20 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import static com.example.myjamaat1lad.MainActivity.arrayAdapter;
-import static com.example.myjamaat1lad.MainActivity.masjidDatabase;
-import static com.example.myjamaat1lad.MainActivity.updateListView;
+
+
 
 public class EditTime extends AppCompatActivity {
 
     EditText etName, ettFazr, ettZuhr, ettAsr, ettMaghrib, ettEsha;
+    Switch swIsActive;
     String sqlValues;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,6 +31,7 @@ public class EditTime extends AppCompatActivity {
         ettAsr = findViewById(R.id.ettAsr);
         ettMaghrib = findViewById(R.id.ettMaghrib);
         ettEsha = findViewById(R.id.ettEsha);
+        swIsActive = findViewById(R.id.swIsActive);
         TextView tvHead = findViewById(R.id.tvHead);
 
 
@@ -34,15 +39,12 @@ public class EditTime extends AppCompatActivity {
     }
 
     public void addMasjid(View view){
-        sqlValues = etName.getText()+"','"
-                +ettFazr.getText()+"','"
-                +ettZuhr.getText()+"','"
-                +ettAsr.getText()+"','"
-                +ettMaghrib.getText()+"','"
-                +ettEsha.getText();
-        masjidDatabase.execSQL("INSERT INTO zmasjids(name, Fazr, Zuhr, Asr, Maghrib, Esha) VALUES ('"+sqlValues+"')");
-        Log.i("SqlValues", sqlValues);
-        updateListView();
+        Masjid_Model newMasjid =  new Masjid_Model(-1, etName.getText().toString(), true, ettFazr.getText().toString(),
+                                                    ettZuhr.getText().toString(), ettAsr.getText().toString(), ettMaghrib.getText().toString()
+                                                    , ettEsha.getText().toString());
+        DatabaseHelper databaseHelper = new DatabaseHelper(this);
+        databaseHelper.addOne(newMasjid);
+        MainActivity.masjids = databaseHelper.getAll();
         arrayAdapter.notifyDataSetChanged();
         finish();
     }
